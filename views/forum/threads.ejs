@@ -1,0 +1,37 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 thread-header-flex cat-header-flex">
+  <div>
+    <h2 class="mb-0"><%= category.name %></h2>
+    <% if (category.description) { %>
+      <div class="text-muted"><%= category.description %></div>
+    <% } %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <% if (currentUser) { %>
+      <a class="btn btn-primary" href="/new-thread/<%= category.slug %>">
+        <i class="bi bi-plus-lg"></i> Neuer Thread
+      </a>
+    <% } %>
+  </div>
+</div>
+
+<ul class="list-group mt-3 shadow-sm rounded-4 overflow-hidden">
+  <% if (!threads.length) { %>
+    <li class="list-group-item">Noch keine Threads in dieser Kategorie.</li>
+  <% } %>
+
+  <% threads.forEach(t => { %>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <a class="fw-semibold text-decoration-none" href="/t/<%= t._id %>"><%= t.title %></a>
+        <div class="small text-muted">
+          von <%= t.author %> · <%= new Date(t.created_at).toLocaleString('de-DE') %>
+        </div>
+      </div>
+
+      <span class="badge <%= t.is_resolved ? 'bg-success' : 'bg-secondary' %>">
+        <%= t.badge %>
+      </span>
+    </li>
+  <% }) %>
+</ul>

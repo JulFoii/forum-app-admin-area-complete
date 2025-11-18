@@ -1,0 +1,217 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/categories">Kategorien</a></li>
+    <li class="breadcrumb-item">
+      <a href="/c/<%= thread.category_slug %>"><%= thread.category_name %></a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><%= thread.title %></li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2 thread-header-flex">
+  <div class="d-flex align-items-center gap-2 flex-wrap thread-actions-flex">
+    <h2 class="mb-0"><%= thread.title %></h2>
+
+    <span class="badge <%= thread.is_resolved ? 'bg-success' : 'bg-secondary' %>">
+      <%= thread.is_resolved ? 'Hilfe erhalten' : 'Offen' %>
+    </span>
+  </div>
+
+  <div class="d-flex gap-2">
+    <% if (currentUser?.is_admin) { %>
+      <form
+        method="post"
+        action="/admin/thread/<%= thread._id %>/delete"
+        class="js-double-confirm"
+        data-confirm-message="Diesen Thread löschen?"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-danger btn-sm btn-responsive-full" type="submit">
+          <i class="bi bi-trash"></i> Löschen
+        </button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<% if (thread.is_owner || currentUser?.is_admin) { %>
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row gy-2 gx-2 align-items-end">
+        <div class="col-md-8">
+          <form method="post" action="/t/<%= thread._id %>/edit" class="d-flex gap-2 flex-wrap">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input
+              class="form-control"
+              name="title"
+              value="<%= thread.title %>"
+              required
+            >
+            <button class="btn btn-outline-primary" type="submit">
+              <i class="bi bi-pencil-square"></i> Speichern
+            </button>
+          </form>
+        </div>
+
+        <div class="col-md-4 d-flex gap-2 flex-wrap">
+          <% if (!thread.is_resolved) { %>
+            <form
+              method="post"
+              action="/t/<%= thread._id %>/resolve"
+              class="js-double-confirm"
+              data-confirm-message="Thread als erledigt markieren?"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-success btn-responsive-full" type="submit">
+                <i class="bi bi-check2-circle"></i> Hilfe erhalten
+              </button>
+            </form>
+          <% } else { %>
+            <form
+              method="post"
+              action="/t/<%= thread._id %>/reopen"
+              class="js-double-confirm"
+              data-confirm-message="Thread wieder öffnen?"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-warning btn-responsive-full" type="submit">
+                <i class="bi bi-arrow-counterclockwise"></i> Wieder öffnen
+              </button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<div class="vstack gap-3">
+  <% posts.forEach(p => { %>
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div class="d-flex align-items-start gap-2 post-header-flex">
+            <div class="avatar">
+              <i class="bi bi-person"></i>
+            </div>
+
+            <div>
+              <strong><%= p.author %></strong>
+              <div class="small text-muted">
+                <%= new Date(p.created_at).toLocaleString('de-DE') %>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <% if (p.is_owner || currentUser?.is_admin) { %>
+              <a
+                class="btn btn-outline-secondary btn-sm"
+                href="/p/<%= p._id %>/edit"
+                title="Bearbeiten"
+              >
+                <i class="bi bi-pencil"></i>
+              </a>
+
+              <form
+                method="post"
+                action="/p/<%= p._id %>/delete"
+                class="js-double-confirm d-inline"
+                data-confirm-message="Diesen Kommentar löschen?"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-outline-danger btn-sm" title="Löschen" type="submit">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="post-content mt-2 mb-2"><%- p.content %></div>
+
+        <% if (p.image_url) { %>
+          <div class="mt-2">
+            <a href="<%= p.image_url %>" target="_blank">
+              <img
+                src="<%= p.image_url %>"
+                class="img-fluid rounded-3 border"
+                style="max-height:300px;object-fit:contain;"
+              >
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<a id="end"></a>
+
+<% if (currentUser) { %>
+  <form
+    method="post"
+    action="/t/<%= thread._id %>/reply"
+    class="mt-4"
+    enctype="multipart/form-data"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="mb-3">
+      <label class="form-label d-flex justify-content-between align-items-center">
+        <span>Antwort</span>
+        <small class="text-muted">Formatierung möglich</small>
+      </label>
+
+      <div class="rich-editor">
+        <div class="editor-toolbar mb-0">
+          <button data-cmd="bold" title="Fett" type="button"><i class="bi bi-type-bold"></i></button>
+          <button data-cmd="italic" title="Kursiv" type="button"><i class="bi bi-type-italic"></i></button>
+          <button data-cmd="strike" title="Durchgestrichen" type="button"><i class="bi bi-type-strikethrough"></i></button>
+          <button data-cmd="h2" title="Überschrift" type="button"><i class="bi bi-type-h2"></i></button>
+          <button class="js-insert-link-btn" data-bs-toggle="modal" data-bs-target="#insertLinkModal" title="Link einfügen" type="button">
+            <i class="bi bi-link-45deg"></i>
+          </button>
+          <button data-cmd="code-inline" title="Inline-Code" type="button"><i class="bi bi-code"></i></button>
+          <button data-cmd="code-block" title="Codeblock" type="button"><i class="bi bi-file-code"></i></button>
+        </div>
+
+        <div class="editor-area-wrapper">
+          <textarea
+            class="editor-area"
+            name="content"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-text">
+        Unterstützt: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;del&gt;</code>,
+        <code>&lt;h2&gt;</code>, <code>&lt;a&gt;</code>,
+        <code>&lt;code&gt;</code>, <code>&lt;pre&gt;&lt;code&gt;</code>.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Bild (optional)</label>
+      <input
+        class="form-control"
+        type="file"
+        name="image"
+        accept="image/*"
+      >
+      <div class="form-text">
+        Max. 5MB. Erlaubt: PNG, JPG, GIF, WEBP
+      </div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+      <i class="bi bi-send"></i> Absenden
+    </button>
+  </form>
+<% } else { %>
+  <div class="alert alert-info mt-4">
+    Bitte <a href="/login">einloggen</a>, um zu antworten.
+  </div>
+<% } %>

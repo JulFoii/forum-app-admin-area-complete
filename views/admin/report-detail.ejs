@@ -1,0 +1,70 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="mb-0">
+    <i class="bi bi-shield-lock me-2"></i>Adminbereich
+  </h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/dashboard">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/categories">
+      <i class="bi bi-grid"></i> Kategorien
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
+      <i class="bi bi-chat-dots"></i> Threads
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/log">
+      <i class="bi bi-clipboard-data"></i> Admin-Log
+    </a>
+  </div>
+</div>
+
+<h3 class="mb-3">Gemeldeter Beitrag</h3>
+
+<p class="small text-muted mb-2">
+  Thread:
+  <a href="<%= thread ? ('/t/' + thread.slug + '-' + (thread.publicId || thread._id)) : '#' %>" target="_blank">
+    <%= thread ? thread.title : '(Thread fehlt)' %>
+  </a>
+</p>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="small text-muted mb-2">Beitrag:</div>
+    <div><%- post.content %></div>
+  </div>
+</div>
+
+<h5 class="mt-4 mb-2">Meldungen</h5>
+<ul class="list-group mb-4">
+  <% reports.forEach(r => { %>
+    <li class="list-group-item">
+      <div class="small text-muted">
+        Grund · <%= new Date(r.created_at).toLocaleString('de-DE') %>
+      </div>
+      <div><%= r.reason %></div>
+      <div class="small text-muted mt-1">
+        Gemeldet von: <%= r.reportedBy === 'anonymous' ? 'anonym' : r.reportedBy %>
+      </div>
+    </li>
+  <% }) %>
+</ul>
+
+<h5 class="mb-3">Moderationsentscheidung</h5>
+<form method="post" action="/admin/reports/<%= post._id %>/resolve">
+  <div class="mb-3">
+    <label class="form-label">Aktion</label>
+    <select class="form-select" name="action" required>
+      <option value="keep">Beitrag behalten</option>
+      <option value="delete">Beitrag löschen</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Begründung (für Admin-Log)</label>
+    <textarea class="form-control" name="admin_reason" rows="3" placeholder="Warum triffst du diese Entscheidung?"></textarea>
+  </div>
+
+  <button class="btn btn-primary" type="submit">
+    Entscheidung speichern
+  </button>
+</form>

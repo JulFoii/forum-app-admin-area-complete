@@ -1,0 +1,66 @@
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-grid"></i> Kategorien
+        </h5>
+
+        <div class="list-group list-group-flush">
+          <% categories.forEach(c => { %>
+            <a
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              href="/c/<%= c.slug %>"
+            >
+              <div>
+                <strong><%= c.name %></strong>
+                <% if (c.description) { %>
+                  <div class="small text-muted"><%= c.description %></div>
+                <% } %>
+              </div>
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title d-flex align-items-center gap-2 m-0">
+            <i class="bi bi-clock-history"></i> Letzte Threads
+          </h5>
+
+          <% if (currentUser) { %>
+            <a class="btn btn-primary btn-sm" href="/new-thread">
+              <i class="bi bi-plus-lg"></i> Neuer Thread
+            </a>
+          <% } %>
+        </div>
+
+        <% if (!latestThreads.length) { %>
+          <div class="text-muted">Noch keine Threads vorhanden.</div>
+        <% } else { %>
+          <ul class="list-group list-group-flush">
+            <% latestThreads.forEach(t => { %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <a class="fw-semibold text-decoration-none" href="/t/<%= t._id %>">
+                    <%= t.title %>
+                  </a>
+                </div>
+
+                <span class="badge <%= t.is_resolved ? 'bg-success' : 'bg-secondary' %>">
+                  <%= t.is_resolved ? 'Hilfe erhalten' : 'Offen' %>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

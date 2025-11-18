@@ -1,0 +1,13 @@
+<% if (success && success.length) { %>
+  <div class="alert alert-success shadow-sm">
+    <i class="bi bi-check-circle me-2"></i>
+    <%= success[0] %>
+  </div>
+<% } %>
+
+<% if (error && error.length) { %>
+  <div class="alert alert-danger shadow-sm">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <%= error[0] %>
+  </div>
+<% } %>

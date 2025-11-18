@@ -1,0 +1,74 @@
+<h2>Neuen Thread erstellen</h2>
+
+<form
+  method="post"
+  action="/new-thread"
+  class="mt-3"
+  enctype="multipart/form-data"
+>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <div class="mb-3">
+    <label class="form-label">Kategorie</label>
+    <select class="form-select" name="category_slug" required>
+      <% categories.forEach(c => { %>
+        <option value="<%= c.slug %>" <%= c.slug === selected ? 'selected' : '' %>><%= c.name %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Titel</label>
+    <input class="form-control" name="title" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label d-flex justify-content-between align-items-center">
+      <span>Text</span>
+      <small class="text-muted">Du kannst Text formatieren</small>
+    </label>
+
+    <div class="rich-editor">
+      <div class="editor-toolbar mb-0">
+        <button data-cmd="bold" title="Fett (strong)" type="button"><i class="bi bi-type-bold"></i></button>
+        <button data-cmd="italic" title="Kursiv (em)" type="button"><i class="bi bi-type-italic"></i></button>
+        <button data-cmd="strike" title="Durchgestrichen (del)" type="button"><i class="bi bi-type-strikethrough"></i></button>
+        <button data-cmd="h2" title="Überschrift (h2)" type="button"><i class="bi bi-type-h2"></i></button>
+        <button class="js-insert-link-btn" data-bs-toggle="modal" data-bs-target="#insertLinkModal" title="Link einfügen" type="button">
+          <i class="bi bi-link-45deg"></i>
+        </button>
+        <button data-cmd="code-inline" title="Inline-Code" type="button"><i class="bi bi-code"></i></button>
+        <button data-cmd="code-block" title="Codeblock" type="button"><i class="bi bi-file-code"></i></button>
+      </div>
+
+      <div class="editor-area-wrapper">
+        <textarea
+          class="editor-area"
+          name="content"
+          rows="8"
+          required
+        ></textarea>
+      </div>
+    </div>
+    <div class="form-text">
+      Unterstützt: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;del&gt;</code>, <code>&lt;h2&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;pre&gt;&lt;code&gt;</code>.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Bild (optional)</label>
+    <input
+      class="form-control"
+      type="file"
+      name="image"
+      accept="image/*"
+    >
+    <div class="form-text">
+      Max. 5MB. Erlaubt: PNG, JPG, GIF, WEBP
+    </div>
+  </div>
+
+  <button class="btn btn-primary" type="submit">
+    <i class="bi bi-plus-lg"></i> Anlegen
+  </button>
+</form>

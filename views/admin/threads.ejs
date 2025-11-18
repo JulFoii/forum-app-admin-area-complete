@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="mb-0">
+    <i class="bi bi-shield-lock me-2"></i>Adminbereich
+  </h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/dashboard">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/categories">
+      <i class="bi bi-grid"></i> Kategorien
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
+      <i class="bi bi-chat-dots"></i> Threads
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/log">
+      <i class="bi bi-clipboard-data"></i> Admin-Log
+    </a>
+  </div>
+</div>
+
+<h3 class="mb-3">Threads verwalten</h3>
+
+<% if (!threads.length) { %>
+  <div class="text-muted">Noch keine Threads.</div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Titel</th>
+          <th>Kategorie</th>
+          <th>Autor</th>
+          <th>Erstellt</th>
+          <th>Status</th>
+          <th class="text-end">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% threads.forEach(t => { %>
+          <tr>
+            <td style="min-width:260px;">
+              <form class="d-flex gap-2" method="post" action="/admin/thread/<%= t._id %>/edit">
+                <input class="form-control form-control-sm" name="title" value="<%= t.title %>">
+                <a class="btn btn-outline-secondary btn-sm" href="<%= t.link %>" target="_blank" title="Thread öffnen">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </td>
+            <td><%= t.categoryName %></td>
+            <td><%= t.authorName %></td>
+            <td class="small text-muted"><%= new Date(t.created_at).toLocaleString('de-DE') %></td>
+            <td>
+              <select class="form-select form-select-sm" name="is_resolved">
+                <option value="0" <%= !t.is_resolved ? 'selected' : '' %>>Offen</option>
+                <option value="1" <%= t.is_resolved ? 'selected' : '' %>>Erledigt</option>
+              </select>
+            </td>
+            <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" type="submit">
+                    Speichern
+                  </button>
+              </form>
+                  <form method="post" action="/admin/thread/<%= t._id %>/delete"
+                        onsubmit="return confirm('Thread wirklich löschen?');">
+                    <button class="btn btn-outline-danger" type="submit">
+                      Löschen
+                    </button>
+                  </form>
+                </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

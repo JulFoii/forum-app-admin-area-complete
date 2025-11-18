@@ -1,0 +1,98 @@
+<h2>Beitrag bearbeiten</h2>
+
+<div class="mb-3 text-muted small">
+  Thread:
+  <a href="/t/<%= post.thread_id %>"><%= post.thread_title %></a>
+</div>
+
+<form
+  method="post"
+  action="/p/<%= post._id %>/edit"
+  enctype="multipart/form-data"
+>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <div class="mb-3">
+    <label class="form-label d-flex justify-content-between align-items-center">
+      <span>Text</span>
+      <small class="text-muted">Formatierung möglich</small>
+    </label>
+
+    <div class="rich-editor">
+      <div class="editor-toolbar mb-0">
+        <button data-cmd="bold" title="Fett" type="button"><i class="bi bi-type-bold"></i></button>
+        <button data-cmd="italic" title="Kursiv" type="button"><i class="bi bi-type-italic"></i></button>
+        <button data-cmd="strike" title="Durchgestrichen" type="button"><i class="bi bi-type-strikethrough"></i></button>
+        <button data-cmd="h2" title="Überschrift" type="button"><i class="bi bi-type-h2"></i></button>
+        <button class="js-insert-link-btn" data-bs-toggle="modal" data-bs-target="#insertLinkModal" title="Link einfügen" type="button">
+          <i class="bi bi-link-45deg"></i>
+        </button>
+        <button data-cmd="code-inline" title="Inline-Code" type="button"><i class="bi bi-code"></i></button>
+        <button data-cmd="code-block" title="Codeblock" type="button"><i class="bi bi-file-code"></i></button>
+      </div>
+
+      <div class="editor-area-wrapper">
+        <textarea
+          class="editor-area"
+          name="content"
+          rows="8"
+          required
+        ><%= post.content %></textarea>
+      </div>
+    </div>
+
+    <div class="form-text">
+      Unterstützt: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;del&gt;</code>, <code>&lt;h2&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;pre&gt;&lt;code&gt;</code>.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Aktuelles Bild</label><br>
+
+    <% if (post.image_url) { %>
+      <a href="<%= post.image_url %>" target="_blank">
+        <img
+          src="<%= post.image_url %>"
+          class="img-fluid rounded-3 border mb-2"
+          style="max-height:200px;object-fit:contain;"
+        >
+      </a>
+
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value="1"
+          id="remove_image"
+          name="remove_image"
+        >
+        <label class="form-check-label" for="remove_image">
+          Bild entfernen
+        </label>
+      </div>
+    <% } else { %>
+      <div class="text-muted">Kein Bild vorhanden.</div>
+    <% } %>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Neues Bild hochladen (optional)</label>
+    <input
+      class="form-control"
+      type="file"
+      name="image"
+      accept="image/*"
+    >
+    <div class="form-text">
+      Wenn du hier ein Bild auswählst, ersetzt es das bestehende Bild.
+    </div>
+  </div>
+
+  <button class="btn btn-primary" type="submit">
+    <i class="bi bi-save"></i> Speichern
+  </button>
+
+  <a class="btn btn-secondary" href="/t/<%= post.thread_id %>#end">
+    <i class="bi bi-x-circle"></i> Abbrechen
+  </a>
+</form>

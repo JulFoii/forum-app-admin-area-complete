@@ -1,0 +1,91 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="mb-0">
+    <i class="bi bi-shield-lock me-2"></i>Adminbereich
+  </h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/dashboard">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/categories">
+      <i class="bi bi-grid"></i> Kategorien
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
+      <i class="bi bi-chat-dots"></i> Threads
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/log">
+      <i class="bi bi-clipboard-data"></i> Admin-Log
+    </a>
+  </div>
+</div>
+
+<h3 class="mb-3">Kategorien verwalten</h3>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Neue Kategorie anlegen</h5>
+    <form method="post" action="/admin/category">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Name</label>
+          <input class="form-control" name="name" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Beschreibung</label>
+          <input class="form-control" name="description">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary w-100" type="submit">
+            <i class="bi bi-plus-lg"></i> Anlegen
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<h5 class="mb-2">Bestehende Kategorien</h5>
+
+<% if (!categories.length) { %>
+  <div class="text-muted">Noch keine Kategorien.</div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Beschreibung</th>
+          <th class="text-end">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% categories.forEach(c => { %>
+          <tr>
+            <form method="post" action="/admin/category/<%= c._id %>/edit">
+              <td style="max-width: 220px;">
+                <input class="form-control form-control-sm" name="name" value="<%= c.name %>">
+              </td>
+              <td class="small text-muted"><%= c.slug %></td>
+              <td>
+                <input class="form-control form-control-sm" name="description" value="<%= c.description %>">
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" type="submit">
+                    Speichern
+                  </button>
+                </form>
+                  <form method="post" action="/admin/category/<%= c._id %>/delete"
+                        onsubmit="return confirm('Kategorie inklusive aller Threads und Posts löschen?');">
+                    <button class="btn btn-outline-danger" type="submit">
+                      Löschen
+                    </button>
+                  </form>
+                </div>
+              </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

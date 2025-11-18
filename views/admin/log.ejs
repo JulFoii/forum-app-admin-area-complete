@@ -1,0 +1,55 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="mb-0">
+    <i class="bi bi-shield-lock me-2"></i>Adminbereich
+  </h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/dashboard">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/categories">
+      <i class="bi bi-grid"></i> Kategorien
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
+      <i class="bi bi-chat-dots"></i> Threads
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/log">
+      <i class="bi bi-clipboard-data"></i> Admin-Log
+    </a>
+  </div>
+</div>
+
+<h3 class="mb-3">Admin-Log</h3>
+<p class="text-muted small mb-3">
+  Der Admin-Log protokolliert Moderationsaktionen und kann nicht gelöscht werden.
+</p>
+
+<% if (!logs.length) { %>
+  <div class="text-muted">Noch keine Einträge.</div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Zeitpunkt</th>
+          <th>Admin</th>
+          <th>Aktion</th>
+          <th>Typ</th>
+          <th>Target-ID</th>
+          <th>Notiz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% logs.forEach(l => { %>
+          <tr>
+            <td class="small text-muted"><%= new Date(l.created_at).toLocaleString('de-DE') %></td>
+            <td><%= l.adminName %></td>
+            <td><code><%= l.action %></code></td>
+            <td><%= l.targetType %></td>
+            <td class="small text-muted"><%= l.targetId %></td>
+            <td><%= l.note %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
