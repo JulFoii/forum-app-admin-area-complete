@@ -240,3 +240,7 @@ body {
   .breadcrumb { font-size: .9rem; }
   .btn-responsive-full { width: 100%; }
 }
+
+
+/* Added for newline support in posts */
+.post-content { white-space: pre-line; }
