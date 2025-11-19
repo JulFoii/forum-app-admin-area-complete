@@ -12,6 +12,9 @@
     <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
       <i class="bi bi-chat-dots"></i> Threads
     </a>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/reports">
+      <i class="bi bi-flag"></i> Meldungen
+    </a>
     <a class="btn btn-outline-secondary btn-sm" href="/admin/log">
       <i class="bi bi-clipboard-data"></i> Admin-Log
     </a>
@@ -49,27 +52,15 @@
 </section>
 
 <section class="mb-4">
-  <h4>Gemeldete Beiträge (offen)</h4>
-  <% if (reportedPostsSummary.length === 0) { %>
-    <div class="text-muted">Keine offenen Meldungen 🎉</div>
-  <% } else { %>
-    <div class="list-group">
-      <% reportedPostsSummary.forEach(r => { %>
-        <a class="list-group-item list-group-item-action" href="/admin/reports/<%= r.postId %>">
-          <div class="d-flex justify-content-between">
-            <div>
-              <div class="small text-muted"><%= r.authorName %> · <%= r.reportCount %> Meldungen</div>
-              <div class="fw-semibold"><%= r.threadTitle %></div>
-              <div class="text-muted"><%= r.postExcerpt %></div>
-              <div class="small text-muted">Letzter Grund: <%= r.lastReason %></div>
-            </div>
-            <span class="badge bg-danger align-self-start"><%= r.status %></span>
-          </div>
-        </a>
-      <% }) %>
-    </div>
-  <% } %>
+  <h4>Gemeldete Beiträge</h4>
+  <p>
+    Offene Meldungen: <strong><%= metrics.openReportsCount %></strong>
+  </p>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin/reports">
+    <i class="bi bi-flag"></i> Zum Meldungsbereich
+  </a>
 </section>
+
 
 <section class="mb-4">
   <h4>Top aktive User</h4>

@@ -8,6 +8,18 @@
   </ol>
 </nav>
 
+<% if (currentUser?.is_admin) { %>
+  <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <i class="bi bi-shield-lock me-1"></i>
+      Du siehst diesen Thread als <strong>Admin</strong>.
+    </div>
+    <div class="small text-muted">
+      Thread-ID: <code><%= thread._id %></code>
+    </div>
+  </div>
+<% } %>
+
 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2 thread-header-flex">
   <div class="d-flex align-items-center gap-2 flex-wrap thread-actions-flex">
     <h2 class="mb-0"><%= thread.title %></h2>
@@ -85,66 +97,201 @@
   </div>
 <% } %>
 
-<div class="vstack gap-3">
-  <% posts.forEach(p => { %>
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-          <div class="d-flex align-items-start gap-2 post-header-flex">
-            <div class="avatar">
-              <i class="bi bi-person"></i>
-            </div>
+<% if (currentUser?.is_admin) { %>
+  <!-- Admin-Überblick -->
+  <div class="card border-warning mb-4">
+    <div class="card-header">
+      <i class="bi bi-eye me-1"></i> Admin-Überblick
+    </div>
+    <div class="card-body small">
+      <div class="mb-1">
+        <strong>Ersteller:</strong> <%= thread.author %>
+      </div>
+      <div class="mb-1">
+        <strong>Erstellt:</strong>
+        <%= thread.created_at ? new Date(thread.created_at).toLocaleString('de-DE') : '-' %>
+      </div>
+      <div class="mb-1">
+        <strong>Zuletzt aktualisiert:</strong>
+        <%= thread.updated_at ? new Date(thread.updated_at).toLocaleString('de-DE') : '-' %>
+      </div>
+      <div class="mb-1">
+        <strong>Status:</strong>
+        <%= thread.is_resolved ? 'Erledigt' : 'Offen' %>
+      </div>
+      <div class="mb-1">
+        <strong>Thread-ID:</strong> <code><%= thread._id %></code>
+      </div>
 
-            <div>
-              <strong><%= p.author %></strong>
-              <div class="small text-muted">
-                <%= new Date(p.created_at).toLocaleString('de-DE') %>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-flex gap-2">
-            <% if (p.is_owner || currentUser?.is_admin) { %>
-              <a
-                class="btn btn-outline-secondary btn-sm"
-                href="/p/<%= p._id %>/edit"
-                title="Bearbeiten"
-              >
-                <i class="bi bi-pencil"></i>
-              </a>
-
-              <form
-                method="post"
-                action="/p/<%= p._id %>/delete"
-                class="js-double-confirm d-inline"
-                data-confirm-message="Diesen Kommentar löschen?"
-              >
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <button class="btn btn-outline-danger btn-sm" title="Löschen" type="submit">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="post-content mt-2 mb-2"><%- p.content %></div>
-
-        <% if (p.image_url) { %>
-          <div class="mt-2">
-            <a href="<%= p.image_url %>" target="_blank">
-              <img
-                src="<%= p.image_url %>"
-                class="img-fluid rounded-3 border"
-                style="max-height:300px;object-fit:contain;"
-              >
-            </a>
-          </div>
-        <% } %>
+      <div class="mt-2 d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary btn-sm" href="/admin/threads">
+          <i class="bi bi-gear"></i> Thread im Adminbereich verwalten
+        </a>
+        <a class="btn btn-outline-secondary btn-sm" href="/admin/reports">
+          <i class="bi bi-flag"></i> Meldungen ansehen
+        </a>
       </div>
     </div>
-  <% }) %>
-</div>
+  </div>
+<% } %>
+
+<%
+  // Eröffnungsbeitrag (Thread-Ersteller) + Antworten trennen
+  const hasPosts = posts && posts.length > 0;
+  const mainPost = hasPosts ? posts[0] : null;
+  const replies = hasPosts ? posts.slice(1) : [];
+%>
+
+<% if (mainPost) { %>
+  <!-- ERÖFFNUNGSBEITRAG (Thread-Ersteller) -->
+  <div class="card border-primary mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar">
+          <i class="bi bi-person"></i>
+        </div>
+        <div>
+          <strong><%= mainPost.author %></strong>
+          <div class="small text-muted">
+            <%= new Date(mainPost.created_at).toLocaleString('de-DE') %>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary">Thread-Ersteller</span>
+
+        <% if (mainPost.is_owner || currentUser?.is_admin) { %>
+          <a
+            class="btn btn-outline-secondary btn-sm"
+            href="/p/<%= mainPost._id %>/edit"
+            title="Beitrag bearbeiten"
+          >
+            <i class="bi bi-pencil"></i>
+          </a>
+
+          <form
+            method="post"
+            action="/p/<%= mainPost._id %>/delete"
+            class="js-double-confirm d-inline"
+            data-confirm-message="Diesen Beitrag löschen?"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-outline-danger btn-sm" title="Löschen" type="submit">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        <% } %>
+
+        <!-- Melden kann jeder User (auch ohne Login), der den Beitrag sieht -->
+        <a
+          class="btn btn-outline-warning btn-sm"
+          href="/p/<%= mainPost._id %>/report"
+          title="Beitrag melden"
+        >
+          <i class="bi bi-flag"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body bg-light">
+      <div class="post-content mb-2"><%- mainPost.content %></div>
+
+      <% if (mainPost.image_url) { %>
+        <div class="mt-2">
+          <a href="<%= mainPost.image_url %>" target="_blank">
+            <img
+              src="<%= mainPost.image_url %>"
+              class="img-fluid rounded-3 border"
+              style="max-height:300px;object-fit:contain;"
+            >
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<!-- ANTWORTEN -->
+<% if (replies.length) { %>
+  <h5 class="mb-3">Antworten</h5>
+  <div class="vstack gap-3">
+    <% replies.forEach(p => { %>
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div class="d-flex align-items-start gap-2 post-header-flex">
+              <div class="avatar">
+                <i class="bi bi-reply"></i>
+              </div>
+
+              <div>
+                <strong><%= p.author %></strong>
+                <div class="small text-muted">
+                  <%= new Date(p.created_at).toLocaleString('de-DE') %>
+                </div>
+                <span class="badge bg-secondary-subtle text-dark border rounded-pill mt-1">
+                  Antwort
+                </span>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <% if (p.is_owner || currentUser?.is_admin) { %>
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="/p/<%= p._id %>/edit"
+                  title="Antwort bearbeiten"
+                >
+                  <i class="bi bi-pencil"></i>
+                </a>
+
+                <form
+                  method="post"
+                  action="/p/<%= p._id %>/delete"
+                  class="js-double-confirm d-inline"
+                  data-confirm-message="Diese Antwort löschen?"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-outline-danger btn-sm" title="Löschen" type="submit">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              <% } %>
+
+              <!-- Melden -->
+              <a
+                class="btn btn-outline-warning btn-sm"
+                href="/p/<%= p._id %>/report"
+                title="Beitrag melden"
+              >
+                <i class="bi bi-flag"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="post-content mt-2 mb-2"><%- p.content %></div>
+
+          <% if (p.image_url) { %>
+            <div class="mt-2">
+              <a href="<%= p.image_url %>" target="_blank">
+                <img
+                  src="<%= p.image_url %>"
+                  class="img-fluid rounded-3 border"
+                  style="max-height:300px;object-fit:contain;"
+                >
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } else if (mainPost) { %>
+  <div class="text-muted mb-3">
+    Noch keine Antworten. Sei der Erste, der auf diesen Thread antwortet!
+  </div>
+<% } %>
 
 <a id="end"></a>
 

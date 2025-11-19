@@ -50,13 +50,33 @@ app.use(
 
 app.use(flash());
 app.use((req, res, next) => {
-  res.locals.csrfToken = 'dev-no-csrf'; // dummy placeholder (kein echter Schutz im Dev-Modus!)
-  res.locals.currentUser = req.session.user || null;
+  // CSRF ist hier nur ein Platzhalter (Dev-Modus)
+  res.locals.csrfToken = 'dev-no-csrf';
+
+  const realUser = req.session.user || null;
+  const viewAsUser = !!req.session.viewAsUser;
+
+  // effectiveUser ist das, was das Frontend als currentUser sieht
+  let effectiveUser = realUser;
+  let isAdminView = true;
+
+  if (realUser && realUser.is_admin && viewAsUser) {
+    // Admin will die Seite so sehen wie ein normaler User:
+    // wir klonen das Objekt und setzen is_admin auf false
+    effectiveUser = { ...realUser, is_admin: false };
+    isAdminView = false;
+  }
+
+  res.locals.currentUser = effectiveUser;
+  res.locals.realUser = realUser;
+  res.locals.isAdminView = isAdminView;
+  res.locals.viewAsUser = viewAsUser;
+  res.locals.currentPath = req.originalUrl || '/';
+
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   next();
 });
-
 app.use(indexRoutes);
 app.use(authRoutes);
 app.use(forumRoutes);

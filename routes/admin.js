@@ -31,6 +31,22 @@ router.get('/', requireAdmin, (req, res) => {
 });
 
 
+// Admin: Ansicht umschalten (Admin <-> User)
+// Admin: Ansicht umschalten (Admin <-> User)
+router.post('/view-mode', requireAdmin, (req, res) => {
+  const { mode, returnTo } = req.body;
+
+  if (mode === 'user') {
+    req.session.viewAsUser = true;
+  } else if (mode === 'admin') {
+    req.session.viewAsUser = false;
+  }
+
+  const redirectTo = returnTo || req.get('referer') || '/';
+  res.redirect(redirectTo);
+});
+
+
 /* Kategorien-CRUD */
 router.get('/categories', requireAdmin, (req, res) => {
   const categories = getAllCategoriesSorted();
@@ -218,15 +234,23 @@ router.get('/log', requireAdmin, (req, res) => {
 });
 
 /* Dashboard */
+
+
+/* Meldungen-Übersicht */
+router.get('/reports', requireAdmin, (req, res) => {
+  const openReports = getOpenReportSummaries();
+  res.render('admin/reports', { openReports });
+});
+
+/* Dashboard */
 router.get('/dashboard', requireAdmin, (req, res) => {
   const metrics = {
     totalUsers: users.length,
     catStats: getCategoryStats(),
     openReportsCount: getOpenReportSummaries().length
   };
-  const reportedPostsSummary = getOpenReportSummaries();
   const topUsers = getTopUsers(5);
-  res.render('admin/dashboard', { metrics, reportedPostsSummary, topUsers });
+  res.render('admin/dashboard', { metrics, topUsers });
 });
 
 export default router;

@@ -10,6 +10,9 @@
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#nav"
+      aria-controls="nav"
+      aria-expanded="false"
+      aria-label="Navigation umschalten"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -22,7 +25,7 @@
           </a>
         </li>
 
-        <% if (currentUser?.is_admin) { %>
+        <% if (realUser?.is_admin) { %>
           <li class="nav-item">
             <a class="nav-link" href="/admin/categories">
               <i class="bi bi-sliders"></i> Admin
@@ -38,6 +41,28 @@
             <strong class="text-dark"><%= currentUser.name %></strong>
           </li>
 
+          <% if (realUser?.is_admin) { %>
+            <li class="nav-item me-2 small text-muted d-flex align-items-center">
+              <span class="me-1">Ansicht:</span>
+              <% if (viewAsUser) { %>
+                <span class="badge bg-secondary">User</span>
+              <% } else { %>
+                <span class="badge bg-primary">Admin</span>
+              <% } %>
+            </li>
+
+            <li class="nav-item me-2">
+              <form method="post" action="/admin/view-mode" class="d-inline js-view-mode-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="mode" value="<%= viewAsUser ? 'admin' : 'user' %>">
+                <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                <button class="btn btn-outline-secondary btn-sm" type="submit">
+                  <%= viewAsUser ? 'Als Admin anzeigen' : 'Als User anzeigen' %>
+                </button>
+              </form>
+            </li>
+          <% } %>
+
           <li class="nav-item">
             <form method="post" action="/logout" class="d-inline">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -48,20 +73,18 @@
           </li>
         <% } else { %>
           <li class="nav-item">
-            <a
-              class="btn btn-outline-secondary btn-sm me-2"
-              href="/login"
-            >Login</a>
+            <a class="btn btn-outline-secondary btn-sm me-2" href="/login">
+              Login
+            </a>
           </li>
-
           <li class="nav-item">
-            <a
-              class="btn btn-primary btn-sm"
-              href="/register"
-            >Registrieren</a>
+            <a class="btn btn-primary btn-sm" href="/register">
+              Registrieren
+            </a>
           </li>
         <% } %>
       </ul>
     </div>
   </div>
 </nav>
+

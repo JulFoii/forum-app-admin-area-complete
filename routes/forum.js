@@ -291,16 +291,22 @@ router.get('/p/:id/report', (req, res) => {
 });
 
 // Meldung absenden
+
+// Meldung absenden
 router.post('/p/:id/report', (req, res) => {
   const post = findPostById(req.params.id);
   if (!post) return res.status(404).render('errors/404');
 
-  const { reason } = req.body;
+  const { reason_code, reason_details } = req.body;
+  const base = (reason_code || '').trim() || 'unbekannt';
+  const extra = (reason_details || '').trim();
+  const reason = extra ? `${base} – ${extra}` : base;
+
   const reporter = req.session.user ? req.session.user._id : 'anonymous';
 
   createReport({
     postId: post._id,
-    reason: reason?.trim() || '(kein Grund angegeben)',
+    reason,
     reportedBy: reporter
   });
 

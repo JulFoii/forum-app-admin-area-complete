@@ -1,0 +1,82 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/categories">Kategorien</a></li>
+    <% if (thread) { %>
+      <li class="breadcrumb-item">
+        <a href="/t/<%= thread.slug %>-<%= thread.publicId || thread._id %>">
+          <%= thread.title %>
+        </a>
+      </li>
+    <% } %>
+    <li class="breadcrumb-item active" aria-current="page">Beitrag melden</li>
+  </ol>
+</nav>
+
+<div class="container my-4 px-0">
+  <h2 class="mb-3">Beitrag melden</h2>
+
+  <!-- Kontext: gemeldeter Beitrag -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <strong>Ausgewählter Beitrag</strong>
+    </div>
+    <div class="card-body">
+      <div class="mb-2"><%- post.content %></div>
+
+      <div class="small text-muted">
+        <% if (thread) { %>
+          Thread:
+          <a href="/t/<%= thread.slug %>-<%= thread.publicId || thread._id %>#post-<%= post._id %>">
+            <%= thread.title %>
+          </a>
+        <% } else { %>
+          (Thread nicht gefunden)
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meldeformular -->
+  <form method="post" action="/p/<%= post._id %>/report">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="mb-3">
+      <label class="form-label">Grund der Meldung</label>
+      <select class="form-select" name="reason_code" required>
+        <option value="">Bitte auswählen …</option>
+        <option value="Spam / Werbung">Spam / Werbung</option>
+        <option value="Beleidigung / Hate Speech">Beleidigung / Hate Speech</option>
+        <option value="Unangemessene Inhalte">Unangemessene Inhalte</option>
+        <option value="Off-Topic">Off-Topic</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Zusätzliche Infos (optional)</label>
+      <textarea
+        class="form-control"
+        name="reason_details"
+        rows="3"
+        placeholder="Beschreibe kurz, warum du diesen Beitrag meldest."
+      ></textarea>
+    </div>
+
+    <button class="btn btn-danger" type="submit">
+      <i class="bi bi-flag-fill"></i> Meldung absenden
+    </button>
+
+    <% if (thread) { %>
+      <a
+        class="btn btn-outline-secondary ms-2"
+        href="/t/<%= thread.slug %>-<%= thread.publicId || thread._id %>#post-<%= post._id %>"
+      >
+        Abbrechen
+      </a>
+    <% } else { %>
+      <a class="btn btn-outline-secondary ms-2" href="/categories">
+        Abbrechen
+      </a>
+    <% } %>
+  </form>
+</div>

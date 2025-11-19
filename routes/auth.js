@@ -56,6 +56,7 @@ router.post('/login', async (req, res) => {
   }
 
   req.session.user = {
+    _id: user._id,
     id: user._id,
     name: user.name,
     email: user.email,
