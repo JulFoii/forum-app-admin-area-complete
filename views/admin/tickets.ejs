@@ -1,0 +1,133 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h2 class="h4 mb-0">Tickets (Admin-Übersicht)</h2>
+  <a href="/admin/dashboard" class="btn btn-outline-secondary btn-sm btn-responsive-full">
+    ← Zurück zum Admin-Dashboard
+  </a>
+</div>
+
+<ul class="nav nav-pills mb-3 flex-wrap">
+  <li class="nav-item">
+    <a class="nav-link <%= (!filter || filter === 'active') ? 'active' : '' %>"
+       href="/admin/tickets?filter=active">
+      Offene &amp; in Bearbeitung
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= filter === 'new' ? 'active' : '' %>"
+       href="/admin/tickets?filter=new">
+      Neue Tickets
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= filter === 'in_progress' ? 'active' : '' %>"
+       href="/admin/tickets?filter=in_progress">
+      In Bearbeitung
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= filter === 'mine' ? 'active' : '' %>"
+       href="/admin/tickets?filter=mine">
+      Meine Tickets
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= filter === 'closed' ? 'active' : '' %>"
+       href="/admin/tickets?filter=closed">
+      Archiv (geschlossen)
+    </a>
+  </li>
+</ul>
+
+<% if (!tickets || tickets.length === 0) { %>
+  <div class="alert alert-info">
+    Für diesen Filter sind aktuell keine Tickets vorhanden.
+  </div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table align-middle table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Betreff</th>
+          <th>Ersteller</th>
+          <th>Status</th>
+          <th>Zuordnung</th>
+          <th>Nachrichten</th>
+          <th>Erstellt am</th>
+          <th class="text-end">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tickets.forEach(t => { %>
+          <tr>
+            <td class="small text-muted"><%= t._id %></td>
+            <td>
+              <a href="/tickets/<%= t._id %>" class="text-decoration-none fw-semibold">
+                <%= t.title %>
+              </a>
+              <% if (t.category) { %>
+                <div class="small text-muted"><%= t.category %></div>
+              <% } %>
+            </td>
+            <td><%= t.userName %></td>
+            <td>
+              <% if (t.status === 'open') { %>
+                <span class="badge bg-warning text-dark">neu</span>
+              <% } else if (t.status === 'in_progress') { %>
+                <span class="badge bg-primary">in Bearbeitung</span>
+              <% } else if (t.status === 'closed') { %>
+                <span class="badge bg-secondary">archiviert</span>
+              <% } else { %>
+                <span class="badge bg-secondary"><%= t.status %></span>
+              <% } %>
+            </td>
+            <td>
+              <% if (t.assignedName) { %>
+                <span class="badge bg-secondary"><%= t.assignedName %></span>
+              <% } else { %>
+                <span class="text-muted small">Niemand</span>
+              <% } %>
+            </td>
+            <td class="text-center"><%= t.messageCount %></td>
+            <td class="small text-muted">
+              <%= new Date(t.created_at).toLocaleString('de-DE') %>
+            </td>
+            <td class="text-end">
+              <div class="d-flex flex-wrap gap-1 justify-content-end thread-actions-flex">
+
+                <a href="/tickets/<%= t._id %>" class="btn btn-sm btn-outline-primary btn-responsive-full">
+                  Öffnen
+                </a>
+
+                <form method="post"
+                      action="/admin/tickets/<%= t._id %>/assign"
+                      class="d-inline js-double-confirm"
+                      data-confirm-message="Dieses Ticket übernehmen?">
+                  <button type="submit"
+                          class="btn btn-sm btn-outline-secondary btn-responsive-full">
+                    Übernehmen
+                  </button>
+                </form>
+
+                <form method="post"
+                      action="/admin/tickets/<%= t._id %>/status"
+                      class="d-inline">
+                  <select name="status" class="form-control form-control-sm mb-1">
+                    <option value="open" <%= t.status === 'open' ? 'selected' : '' %>>Neu</option>
+                    <option value="in_progress" <%= t.status === 'in_progress' ? 'selected' : '' %>>In Bearbeitung</option>
+                    <option value="closed" <%= t.status === 'closed' ? 'selected' : '' %>>Geschlossen</option>
+                  </select>
+                  <button type="submit"
+                          class="btn btn-sm btn-outline-success btn-responsive-full">
+                    Status speichern
+                  </button>
+                </form>
+
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

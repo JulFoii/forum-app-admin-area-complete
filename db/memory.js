@@ -8,6 +8,9 @@ export const posts = [];
 export const reports = [];
 export const adminLogs = [];
 
+export const tickets = [];
+export const ticketMessages = [];
+
 const now = () => new Date().toISOString();
 
 /* USERS */
@@ -283,6 +286,89 @@ export function getAdminLogs() {
 
 /* INIT Default-Kategorien */
 let initialized = false;
+
+
+/* TICKETS */
+
+export function createTicket({ user_id, title, category = null }) {
+  const t = {
+    _id: uuid(),
+    user_id,
+    title,
+    category,
+    status: 'open',
+    assigned_to: null,
+    created_at: now(),
+    updated_at: now()
+  };
+  tickets.push(t);
+  return t;
+}
+
+export function getTicketById(id) {
+  return tickets.find((t) => t._id === id) || null;
+}
+
+export function getTicketsForUser(userId) {
+  return tickets
+    .filter((t) => t.user_id === userId)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+export function createTicketMessage({ ticket_id, user_id, content }) {
+  const m = {
+    _id: uuid(),
+    ticket_id,
+    user_id,
+    content,
+    created_at: now()
+  };
+  ticketMessages.push(m);
+  return m;
+}
+
+export function getMessagesByTicket(ticketId) {
+  return ticketMessages
+    .filter((m) => m.ticket_id === ticketId)
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+}
+
+export function getAllTicketsWithMeta() {
+  return tickets.map((t) => {
+    const owner = users.find((u) => u._id === t.user_id);
+    const assigned = t.assigned_to
+      ? users.find((u) => u._id === t.assigned_to)
+      : null;
+    const messageCount = ticketMessages.filter(
+      (m) => m.ticket_id === t._id
+    ).length;
+    return {
+      ...t,
+      userName: owner ? owner.name : 'Unbekannt',
+      assignedName: assigned ? assigned.name : null,
+      messageCount
+    };
+  });
+}
+
+
+
+export function updateTicketStatus(id, status) {
+  const t = getTicketById(id);
+  if (!t) return null;
+  t.status = status;
+  t.updated_at = now();
+  return t;
+}
+
+export function assignTicketToAdmin(id, adminId) {
+  const t = getTicketById(id);
+  if (!t) return null;
+  t.assigned_to = adminId;
+  t.updated_at = now();
+  return t;
+}
+
 export function initDefaults() {
   if (initialized) return;
   initialized = true;

@@ -1,0 +1,91 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h2 class="h4 mb-0">Meine Tickets</h2>
+  <a href="/tickets/new" class="btn btn-primary btn-sm btn-responsive-full">
+    Neues Ticket
+  </a>
+</div>
+
+<% const hasActive = activeTickets && activeTickets.length > 0; %>
+<% const hasClosed = closedTickets && closedTickets.length > 0; %>
+
+<% if (!hasActive && !hasClosed) { %>
+  <div class="alert alert-info">
+    Du hast noch keine Tickets erstellt.
+  </div>
+<% } %>
+
+<% if (hasActive) { %>
+  <h3 class="h6 mt-3 mb-2 text-muted text-uppercase">Aktive Tickets</h3>
+  <div class="row g-3">
+    <% activeTickets.forEach(t => { %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0 ticket-card">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h3 class="h6 mb-0">
+                <a href="/tickets/<%= t._id %>" class="text-decoration-none">
+                  <%= t.title %>
+                </a>
+              </h3>
+              <span>
+                <% if (t.status === 'open') { %>
+                  <span class="badge bg-warning text-dark">neu</span>
+                <% } else if (t.status === 'in_progress') { %>
+                  <span class="badge bg-primary">in Bearbeitung</span>
+                <% } else { %>
+                  <span class="badge bg-secondary"><%= t.status %></span>
+                <% } %>
+              </span>
+            </div>
+
+            <% if (t.category) { %>
+              <div class="small text-muted mb-2">
+                Kategorie: <%= t.category %>
+              </div>
+            <% } %>
+
+            <div class="mt-auto d-flex justify-content-between align-items-center small text-muted">
+              <span>Erstellt am <%= new Date(t.created_at).toLocaleString('de-DE') %></span>
+              <a href="/tickets/<%= t._id %>" class="btn btn-sm btn-outline-primary">
+                Öffnen
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<% if (hasClosed) { %>
+  <h3 class="h6 mt-4 mb-2 text-muted text-uppercase">Vergangene Tickets</h3>
+  <div class="row g-3">
+    <% closedTickets.forEach(t => { %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 border-0 ticket-card">
+          <div class="card-body d-flex flex-column bg-light">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h3 class="h6 mb-0">
+                <a href="/tickets/<%= t._id %>" class="text-decoration-none text-muted">
+                  <%= t.title %>
+                </a>
+              </h3>
+              <span class="badge bg-secondary">geschlossen</span>
+            </div>
+
+            <% if (t.category) { %>
+              <div class="small text-muted mb-2">
+                Kategorie: <%= t.category %>
+              </div>
+            <% } %>
+
+            <div class="mt-auto d-flex justify-content-between align-items-center small text-muted">
+              <span>Erstellt am <%= new Date(t.created_at).toLocaleString('de-DE') %></span>
+              <span>geschlossen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>

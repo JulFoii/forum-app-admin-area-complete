@@ -1,0 +1,17 @@
+<h2 class="h4 mb-3">Neues Ticket</h2>
+
+<form method="post" action="/tickets/new" class="d-flex flex-column gap-3" style="max-width:600px;">
+  <div>
+    <label class="form-label">Betreff</label>
+    <input class="form-control" name="title" required>
+  </div>
+  <div>
+    <label class="form-label">Kategorie (optional)</label>
+    <input class="form-control" name="category" placeholder="z.B. Login, Bug, Frage">
+  </div>
+  <div>
+    <label class="form-label">Nachricht</label>
+    <textarea class="form-control" name="initial_message" rows="4" required></textarea>
+  </div>
+  <button class="btn btn-primary" type="submit">Ticket erstellen</button>
+</form>

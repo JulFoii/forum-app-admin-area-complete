@@ -12,14 +12,18 @@ import {
   users,
   threads,
   reports,
+  getAllTicketsWithMeta,
+  createAdminLog,
+  updateTicketStatus,
+  assignTicketToAdmin,
   findThreadById,
   findPostById,
   updateThread,
   deletePost,
   markReportsReviewed,
-  getAdminLogs,
-  createAdminLog
+  getAdminLogs
 } from '../db/memory.js';
+import { notifyTicketStatusChange } from './tickets.js';
 import { createSlug } from '../utils/slug.js';
 import { buildThreadUrl } from '../services/threadService.js';
 
@@ -233,7 +237,6 @@ router.get('/log', requireAdmin, (req, res) => {
   res.render('admin/log', { logs });
 });
 
-/* Dashboard */
 
 
 /* Meldungen-Übersicht */
@@ -241,6 +244,89 @@ router.get('/reports', requireAdmin, (req, res) => {
   const openReports = getOpenReportSummaries();
   res.render('admin/reports', { openReports });
 });
+
+
+
+/* Tickets-Admin */
+router.get('/tickets', requireAdmin, (req, res) => {
+  const filter = req.query.filter || 'active';
+  let tickets = getAllTicketsWithMeta();
+
+  switch (filter) {
+    case 'mine':
+      tickets = tickets.filter((t) => t.assigned_to === req.session.user._id);
+      break;
+    case 'closed':
+      tickets = tickets.filter((t) => t.status === 'closed');
+      break;
+    case 'in_progress':
+      tickets = tickets.filter((t) => t.status === 'in_progress');
+      break;
+    case 'new':
+      tickets = tickets.filter((t) => t.status === 'open' && !t.assigned_to);
+      break;
+    case 'active':
+    default:
+      tickets = tickets.filter((t) => t.status !== 'closed');
+      break;
+  }
+
+  tickets = tickets.sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
+
+  res.render('admin/tickets', { tickets, filter });
+});
+
+router.post('/tickets/:id/assign', requireAdmin, (req, res) => {
+  const updated = assignTicketToAdmin(req.params.id, req.session.user._id);
+  if (!updated) {
+    req.flash('error', 'Ticket nicht gefunden.');
+    return res.redirect('/admin/tickets');
+  }
+  createAdminLog({
+    adminId: req.session.user._id,
+    action: 'ticket_assigned',
+    targetType: 'ticket',
+    targetId: updated._id,
+    note: `zugewiesen an ${req.session.user.name}`
+  });
+  req.flash('success', 'Ticket übernommen.');
+  res.redirect('/admin/tickets');
+});
+
+router.post('/tickets/:id/status', requireAdmin, (req, res) => {
+  const { status } = req.body;
+  const allowed = ['open', 'in_progress', 'closed'];
+  if (!allowed.includes(status)) {
+    req.flash('error', 'Ungültiger Status.');
+    return res.redirect('/admin/tickets');
+  }
+  const updated = updateTicketStatus(req.params.id, status);
+  if (!updated) {
+    req.flash('error', 'Ticket nicht gefunden.');
+    return res.redirect('/admin/tickets');
+  }
+  createAdminLog({
+    adminId: req.session.user._id,
+    action: 'ticket_status_change',
+    targetType: 'ticket',
+    targetId: updated._id,
+    note: `Status auf ${status} gesetzt`
+  });
+
+  // Echtzeit-Update für alle, die das Ticket geöffnet haben
+  try {
+    notifyTicketStatusChange(updated._id, status, req.session.user.name);
+  } catch (e) {
+    console.error('Fehler beim Senden des Status-Updates via Socket.IO:', e);
+  }
+
+  req.flash('success', 'Ticket-Status aktualisiert.');
+  res.redirect('/admin/tickets');
+});
+
+
 
 /* Dashboard */
 router.get('/dashboard', requireAdmin, (req, res) => {
