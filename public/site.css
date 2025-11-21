@@ -244,3 +244,334 @@ body {
 
 /* Added for newline support in posts */
 .post-content { white-space: pre-line; }
+
+
+/* Tickets UI */
+.ticket-card {
+  border-radius: 0.75rem;
+}
+
+.ticket-message {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.ticket-message:nth-child(2n) {
+  background-color: #f1f3f5;
+}
+
+.ticket-message-content {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 767.98px) {
+  .ticket-card {
+    box-shadow: none;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+}
+
+/* Enhanced Tickets UI */
+.ticket-messages {
+  max-height: 420px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.ticket-message {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.ticket-message:nth-child(2n) {
+  background-color: #f1f3f5;
+}
+
+.ticket-message-content {
+  font-size: 0.95rem;
+}
+
+.ticket-card {
+  border-radius: 0.9rem;
+}
+
+.ticket-card-closed {
+  background: linear-gradient(to bottom right, #f8f9fa, #f1f3f5);
+}
+
+.bg-status-open {
+  background-color: #ffe066 !important;
+  color: #5f3e00 !important;
+}
+
+.bg-status-progress {
+  background-color: #4dabf7 !important;
+  color: #0b2344 !important;
+}
+
+.bg-status-closed {
+  background-color: #ced4da !important;
+  color: #343a40 !important;
+}
+
+.ticket-admin-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.ticket-header {
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding-bottom: 0.5rem;
+}
+
+
+
+/* Modern Admin Ticket UI */
+.ticket-admin-wrapper { margin-top: 1.5rem; }
+.ticket-admin-card { border-radius: 1.25rem; background: #ffffff; }
+.ticket-admin-filters .nav-pills .ticket-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.9rem;
+}
+.ticket-admin-filters .nav-pills .ticket-pill.active {
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.08);
+}
+.ticket-admin-table-wrapper { margin-top: 0.5rem; }
+.ticket-admin-table thead th {
+  border-bottom-width: 1px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+.ticket-admin-table tbody tr:hover { background-color: #f8f9fb; }
+.btn-ghost-light {
+  background: #f8f9fa;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.btn-ghost-light:hover { background: #e9ecef; }
+.btn-xs {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.78rem;
+  border-radius: 999px;
+}
+.form-select-xs {
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+  font-size: 0.78rem;
+  height: auto;
+}
+.ticket-id-snippet {
+  display: inline-block;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Modern Ticket UI (User + Admin) ===== */
+
+.ticket-page-header {
+  margin-top: 0.5rem;
+}
+
+.ticket-stats-row .ticket-stat-card {
+  background: #ffffff;
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 0.35rem 1rem rgba(15, 23, 42, 0.04);
+}
+
+.ticket-stat-card-warn {
+  background: linear-gradient(135deg, #fff9db, #fff3bf);
+}
+
+.ticket-stat-card-muted {
+  background: linear-gradient(135deg, #f8f9fa, #f1f3f5);
+}
+
+.ticket-stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #868e96;
+  margin-bottom: 0.25rem;
+}
+
+.ticket-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.ticket-empty-state {
+  margin-top: 1.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: 1rem;
+  background: #ffffff;
+  border: 1px dashed rgba(0,0,0,0.06);
+}
+
+/* Chat-Style Ticket Detail */
+
+.ticket-chat-card {
+  border-radius: 1rem;
+}
+
+.ticket-chat-messages {
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.ticket-chat-message {
+  margin-bottom: 0.75rem;
+  max-width: 80%;
+}
+
+.ticket-chat-message-own {
+  margin-left: auto;
+  text-align: right;
+}
+
+.ticket-chat-message-other {
+  margin-right: auto;
+  text-align: left;
+}
+
+.ticket-chat-bubble {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  background: #f1f3f5;
+}
+
+.ticket-chat-message-own .ticket-chat-bubble {
+  background: #4dabf7;
+  color: #ffffff;
+}
+
+.ticket-chat-meta {
+  margin-bottom: 0.15rem;
+}
+
+.ticket-chat-form textarea {
+  resize: vertical;
+}
+
+/* Admin Ticket Board (feintuning) */
+
+.ticket-admin-wrapper {
+  margin-top: 1.5rem;
+}
+
+.ticket-admin-card {
+  border-radius: 1.25rem;
+  background: #ffffff;
+}
+
+.ticket-admin-filters .nav-pills .ticket-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.9rem;
+}
+
+.ticket-admin-filters .nav-pills .ticket-pill.active {
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.08);
+}
+
+.ticket-admin-table-wrapper {
+  margin-top: 0.5rem;
+}
+
+.ticket-admin-table thead th {
+  border-bottom-width: 1px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+.ticket-admin-table tbody tr:hover {
+  background-color: #f8f9fb;
+}
+
+.btn-ghost-light {
+  background: #f8f9fa;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.btn-ghost-light:hover {
+  background: #e9ecef;
+}
+
+.btn-xs {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.78rem;
+  border-radius: 999px;
+}
+
+.form-select-xs {
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+  font-size: 0.78rem;
+  height: auto;
+}
+
+.ticket-id-snippet {
+  display: inline-block;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-title-link {
+  word-break: break-word;
+}
+
+/* Ticket avatars & typing indicator */
+.ticket-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ticket-avatar-other {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.ticket-avatar-own {
+  background: #1c7ed6;
+  color: #ffffff;
+}
+
+.ticket-typing-indicator {
+  min-height: 1.1rem;
+  font-style: italic;
+  color: #868e96;
+}
+
+/* Admin ticket actions layout fix */
+.ticket-row-actions .btn {
+  white-space: nowrap;
+}
+
+.ticket-status-group .form-select {
+  min-width: 130px;
+}
+

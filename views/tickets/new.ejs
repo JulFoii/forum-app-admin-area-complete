@@ -1,0 +1,61 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8 col-xl-7">
+    <div class="card shadow-sm border-0 ticket-form-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <h1 class="h4 mb-1">Neues Support-Ticket</h1>
+            <p class="text-muted small mb-0">
+              Schildere dein Anliegen so genau wie möglich – Screenshots, Schritte und erwartetes Verhalten helfen enorm.
+            </p>
+          </div>
+          <a href="/tickets" class="btn btn-outline-secondary btn-sm">
+            Zurück zur Übersicht
+          </a>
+        </div>
+
+        <form method="post" action="/tickets/new" class="ticket-form d-flex flex-column gap-3">
+          <div>
+            <label class="form-label">Betreff</label>
+            <input class="form-control" name="title" required
+                   placeholder="Kurzbeschreibung deines Problems (z. B. &quot;Kann mich nicht einloggen&quot;)">
+          </div>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Kategorie (optional)</label>
+              <input class="form-control" name="category" placeholder="z. B. Login, Technik, Frage">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Dringlichkeit (optional)</label>
+              <select class="form-select" name="priority">
+                <option value="">Keine Angabe</option>
+                <option value="low">Niedrig</option>
+                <option value="medium">Mittel</option>
+                <option value="high">Hoch</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">Beschreibung</label>
+            <textarea class="form-control" name="initial_message" rows="6" required
+                      placeholder="Beschreibe dein Problem, was genau passiert, welche Schritte du bereits probiert hast und ggf. Fehlermeldungen."></textarea>
+          </div>
+
+          <div class="ticket-form-hint small text-muted">
+            🔐 Persönliche Daten nur angeben, wenn unbedingt notwendig. Teile niemals Passwörter.
+          </div>
+
+          <div class="d-flex justify-content-between flex-wrap gap-2 mt-2">
+            <a href="/tickets" class="btn btn-outline-secondary btn-sm">
+              Abbrechen
+            </a>
+            <button class="btn btn-primary btn-sm px-4" type="submit">
+              Ticket erstellen
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

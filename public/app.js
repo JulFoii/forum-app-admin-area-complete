@@ -68,3 +68,39 @@
     });
   }
 })();
+
+
+// Simple dropdown handling for [data-bs-toggle="dropdown"]
+(() => {
+  document.addEventListener('click', (e) => {
+    const toggle = e.target.closest('[data-bs-toggle="dropdown"]');
+    const openMenus = document.querySelectorAll('.dropdown-menu.show');
+
+    if (toggle) {
+      e.preventDefault();
+      const parent = toggle.closest('.dropdown');
+      const menu = parent ? parent.querySelector('.dropdown-menu') : null;
+      const isShown = menu && menu.classList.contains('show');
+
+      // Close all others
+      openMenus.forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+
+      if (menu) {
+        if (isShown) {
+          menu.classList.remove('show');
+        } else {
+          menu.classList.add('show');
+        }
+      }
+      return;
+    }
+
+    // Click außerhalb der Dropdowns schließt alle
+    if (!e.target.closest('.dropdown')) {
+      openMenus.forEach(m => m.classList.remove('show'));
+    }
+  });
+})();
+
