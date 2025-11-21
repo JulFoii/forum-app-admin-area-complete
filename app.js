@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import path from 'path';
 import helmet from 'helmet';
 import session from 'express-session';
@@ -13,11 +15,19 @@ import authRoutes from './routes/auth.js';
 import forumRoutes from './routes/forum.js';
 import adminRoutes from './routes/admin.js';
 import miscRoutes from './routes/misc.js';
+import ticketRoutes, { attachTicketIO } from './routes/tickets.js';
 
 import { initDefaults } from './db/memory.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: { origin: '*' }
+});
+attachTicketIO(io);
+
 
 // init categories in memory
 initDefaults();
@@ -27,7 +37,20 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layout');
 app.use(expressLayouts);
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "ws:", "wss:", "https://cdn.jsdelivr.net"]
+    }
+  })
+);
+
+
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
@@ -77,15 +100,25 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error');
   next();
 });
+io.on('connection', (socket) => {
+  socket.on('ticket:join', (ticketId) => {
+    socket.join(`ticket:${ticketId}`);
+  });
+  socket.on('ticket:leave', (ticketId) => {
+    socket.leave(`ticket:${ticketId}`);
+  });
+});
+
 app.use(indexRoutes);
 app.use(authRoutes);
 app.use(forumRoutes);
+app.use(ticketRoutes);
 app.use('/admin', adminRoutes);
 app.use(miscRoutes);
 
 app.use((req, res) => res.status(404).render('errors/404'));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Forum läuft (in-memory, csrf OFF) auf http://localhost:${port}`);
 });

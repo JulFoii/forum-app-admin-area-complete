@@ -1,0 +1,267 @@
+<div class="ticket-header mb-3">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+      <div class="small text-uppercase text-muted mb-1">Support-Ticket</div>
+      <h1 class="h4 mb-1"><%= ticket.title %></h1>
+      <div class="small text-muted">
+        erstellt am <%= new Date(ticket.created_at).toLocaleString('de-DE') %>
+        <% if (ticket.category) { %>
+          · Kategorie: <span class="fw-semibold"><%= ticket.category %></span>
+        <% } %>
+      </div>
+    </div>
+    <div class="text-end">
+      <% if (ticket.status === 'open') { %>
+        <span class="badge rounded-pill bg-status-open">Neu</span>
+      <% } else if (ticket.status === 'in_progress') { %>
+        <span class="badge rounded-pill bg-status-progress">In Bearbeitung</span>
+      <% } else if (ticket.status === 'closed') { %>
+        <span class="badge rounded-pill bg-status-closed">Geschlossen</span>
+      <% } else { %>
+        <span class="badge rounded-pill bg-secondary"><%= ticket.status %></span>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0 ticket-chat-card">
+      <div class="card-body d-flex flex-column">
+        <div id="ticketMessages" class="ticket-chat-messages flex-grow-1 mb-2">
+          <% if (!messages || messages.length === 0) { %>
+            <div class="text-muted small">Noch keine Nachrichten in diesem Ticket.</div>
+          <% } else { %>
+            <% messages.forEach(m => {
+                 const isMine = String(m.user_id) === String(currentUser._id);
+            %>
+              <div class="ticket-chat-message <%= isMine ? 'ticket-chat-message-own' : 'ticket-chat-message-other' %>">
+                <div class="d-flex align-items-start gap-2">
+                  <% if (!isMine) { %>
+                    <div class="ticket-avatar ticket-avatar-other">
+                      <span><%= m.initials || (m.userName || 'U').toString().charAt(0).toUpperCase() %></span>
+                    </div>
+                  <% } %>
+                  <div class="flex-grow-1">
+                    <div class="ticket-chat-meta small text-muted">
+                      <span class="fw-semibold"><%= m.userName || 'Unbekannt' %></span>
+                      ·
+                      <span><%= new Date(m.created_at).toLocaleString('de-DE') %></span>
+                    </div>
+                    <div class="ticket-chat-bubble">
+                      <div style="white-space:pre-wrap;"><%- m.content %></div>
+                    </div>
+                  </div>
+                  <% if (isMine) { %>
+                    <div class="ticket-avatar ticket-avatar-own">
+                      <span><%= m.initials || (m.userName || 'U').toString().charAt(0).toUpperCase() %></span>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <div id="typingIndicator" class="ticket-typing-indicator small text-muted mb-2" style="display:none;"></div>
+
+        <form id="ticketMessageForm"
+              method="post"
+              action="/tickets/<%= ticket._id %>/message"
+              class="ticket-chat-form d-flex flex-column gap-2">
+          <label class="form-label fw-semibold mb-0">Neue Nachricht</label>
+          <textarea class="form-control" name="content" rows="3" required
+                    placeholder="Schreibe deine Antwort oder Rückfrage..."></textarea>
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-primary" type="submit">
+              Senden
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Ticket-Details</h2>
+        <% if (ticket.category) { %>
+          <div class="mb-2">
+            <div class="small text-muted">Kategorie</div>
+            <div><%= ticket.category %></div>
+          </div>
+        <% } %>
+        <div class="mb-2">
+          <div class="small text-muted">Status</div>
+          <div id="ticketStatusText">
+            <% if (ticket.status === 'open') { %>
+              Neu
+            <% } else if (ticket.status === 'in_progress') { %>
+              In Bearbeitung
+            <% } else if (ticket.status === 'closed') { %>
+              Geschlossen
+            <% } else { %>
+              <%= ticket.status %>
+            <% } %>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="small text-muted">Ticket-ID</div>
+          <div class="font-monospace small"><%= ticket._id %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const ticketId = "<%= ticket._id %>";
+  const currentUserId = "<%= currentUser._id %>";
+  const currentUserName = "<%= currentUser.name || currentUser.email %>";
+  const socket = io();
+
+  socket.emit('ticket:join', ticketId);
+
+  const msgContainer = document.getElementById('ticketMessages');
+  const form = document.getElementById('ticketMessageForm');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const textarea = form ? form.querySelector('textarea[name="content"]') : null;
+
+  let typingTimeout = null;
+
+  function initialsFromName(name) {
+    if (!name) return 'U';
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  function sendTyping(isTyping) {
+    socket.emit('ticket:typing', {
+      ticket_id: ticketId,
+      userId: currentUserId,
+      userName: currentUserName,
+      isTyping
+    });
+  }
+
+  if (textarea) {
+    textarea.addEventListener('input', () => {
+      sendTyping(true);
+      if (typingTimeout) clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => sendTyping(false), 1500);
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const content = (formData.get('content') || '').toString().trim();
+      if (!content) return;
+
+      const params = new URLSearchParams();
+      params.set('content', content);
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: params.toString()
+        });
+        if (res.ok) {
+          await res.json().catch(() => null);
+          form.reset();
+          sendTyping(false);
+        } else {
+          console.error('Fehler beim Senden der Nachricht', res.status);
+        }
+      } catch (err) {
+        console.error('Fehler beim Senden der Nachricht', err);
+      }
+    });
+  }
+
+  socket.on('ticket:newMessage', (msg) => {
+    if (String(msg.ticket_id) !== String(ticketId)) return;
+    const isMine = String(msg.user_id) === String(currentUserId);
+    const initials = initialsFromName(msg.userName || 'Unbekannt');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ticket-chat-message ' + (isMine ? 'ticket-chat-message-own' : 'ticket-chat-message-other');
+    wrapper.innerHTML = `
+      <div class="d-flex align-items-start gap-2">
+        ${!isMine ? `
+          <div class="ticket-avatar ticket-avatar-other">
+            <span>${initials}</span>
+          </div>
+        ` : ''}
+        <div class="flex-grow-1">
+          <div class="ticket-chat-meta small text-muted">
+            <span class="fw-semibold">${msg.userName || 'Unbekannt'}</span>
+            ·
+            <span>${new Date(msg.created_at).toLocaleString('de-DE')}</span>
+          </div>
+          <div class="ticket-chat-bubble" style="white-space:pre-wrap;">
+            ${msg.content}
+          </div>
+        </div>
+        ${isMine ? `
+          <div class="ticket-avatar ticket-avatar-own">
+            <span>${initials}</span>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    msgContainer.appendChild(wrapper);
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  });
+
+  socket.on('ticket:typing', (payload) => {
+    if (!typingIndicator) return;
+    if (String(payload.ticket_id) !== String(ticketId)) return;
+    if (payload.userId && String(payload.userId) === String(currentUserId)) return;
+
+    if (payload.isTyping) {
+      typingIndicator.style.display = '';
+      typingIndicator.textContent = (payload.userName || 'Jemand') + ' schreibt...';
+    } else {
+      typingIndicator.textContent = '';
+      typingIndicator.style.display = 'none';
+    }
+  });
+
+  socket.on('ticket:statusChange', (payload) => {
+    if (String(payload.ticket_id) !== String(ticketId)) return;
+    const badge = document.querySelector('.ticket-header .badge');
+    const statusText = document.getElementById('ticketStatusText');
+    if (!badge || !statusText) return;
+
+    if (payload.status === 'open') {
+      badge.className = 'badge rounded-pill bg-status-open';
+      badge.textContent = 'Neu';
+      statusText.textContent = 'Neu';
+    } else if (payload.status === 'in_progress') {
+      badge.className = 'badge rounded-pill bg-status-progress';
+      badge.textContent = 'In Bearbeitung';
+      statusText.textContent = 'In Bearbeitung';
+    } else if (payload.status === 'closed') {
+      badge.className = 'badge rounded-pill bg-status-closed';
+      badge.textContent = 'Geschlossen';
+      statusText.textContent = 'Geschlossen';
+    } else {
+      badge.className = 'badge rounded-pill bg-secondary';
+      badge.textContent = payload.status;
+      statusText.textContent = payload.status;
+    }
+  });
+</script>
