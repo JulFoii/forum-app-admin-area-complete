@@ -244,3 +244,31 @@ body {
 
 /* Added for newline support in posts */
 .post-content { white-space: pre-line; }
+
+
+/* Tickets UI */
+.ticket-card {
+  border-radius: 0.75rem;
+}
+
+.ticket-message {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.ticket-message:nth-child(2n) {
+  background-color: #f1f3f5;
+}
+
+.ticket-message-content {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 767.98px) {
+  .ticket-card {
+    box-shadow: none;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+}
+

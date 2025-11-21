@@ -1,0 +1,174 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+  <h2 class="h4 mb-0">Ticket: <%= ticket.title %></h2>
+  <span>
+    <% if (ticket.status === 'open') { %>
+      <span class="badge bg-warning text-dark">neu</span>
+    <% } else if (ticket.status === 'in_progress') { %>
+      <span class="badge bg-primary">in Bearbeitung</span>
+    <% } else if (ticket.status === 'closed') { %>
+      <span class="badge bg-secondary">geschlossen</span>
+    <% } else { %>
+      <span class="badge bg-secondary"><%= ticket.status %></span>
+    <% } %>
+  </span>
+</div>
+
+<div class="small text-muted mb-3">
+  erstellt am <%= new Date(ticket.created_at).toLocaleString('de-DE') %>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-8">
+    <div id="ticketMessages"
+         class="border rounded p-3 content-card mb-3"
+         style="max-height:420px;overflow-y:auto;background:#fff;">
+      <% messages.forEach(m => { %>
+        <div class="mb-3 ticket-message">
+          <div class="small text-muted mb-1">
+            <strong><%= m.userName %></strong>
+            · <%= new Date(m.created_at).toLocaleString('de-DE') %>
+          </div>
+          <div class="ticket-message-content">
+            <div style="white-space:pre-wrap;"><%- m.content %></div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <form id="ticketMessageForm"
+          method="post"
+          action="/tickets/<%= ticket._id %>/message"
+          class="d-flex flex-column gap-2">
+      <label class="form-label">Neue Nachricht</label>
+      <textarea class="form-control" name="content" rows="3" required></textarea>
+      <button class="btn btn-primary" type="submit">Nachricht senden</button>
+    </form>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h3 class="h6 mb-3">Ticket-Details</h3>
+        <% if (ticket.category) { %>
+          <div class="mb-2">
+            <div class="small text-muted">Kategorie</div>
+            <div><%= ticket.category %></div>
+          </div>
+        <% } %>
+        <div class="mb-2">
+          <div class="small text-muted">Status</div>
+          <div>
+            <% if (ticket.status === 'open') { %>
+              Neu
+            <% } else if (ticket.status === 'in_progress') { %>
+              In Bearbeitung
+            <% } else if (ticket.status === 'closed') { %>
+              Geschlossen
+            <% } else { %>
+              <%= ticket.status %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js">
+  socket.on('ticket:statusChange', (payload) => {
+    if (String(payload.ticket_id) !== String(ticketId)) return;
+    const badge = document.querySelector('h2.h4 + span span.badge');
+    if (!badge) return;
+    if (payload.status === 'open') {
+      badge.className = 'badge bg-warning text-dark';
+      badge.textContent = 'neu';
+    } else if (payload.status === 'in_progress') {
+      badge.className = 'badge bg-primary';
+      badge.textContent = 'in Bearbeitung';
+    } else if (payload.status === 'closed') {
+      badge.className = 'badge bg-secondary';
+      badge.textContent = 'geschlossen';
+    } else {
+      badge.className = 'badge bg-secondary';
+      badge.textContent = payload.status;
+    }
+  });
+
+</script>
+<script>
+  const ticketId = "<%= ticket._id %>";
+  const socket = io();
+
+  socket.emit('ticket:join', ticketId);
+
+  const msgContainer = document.getElementById('ticketMessages');
+  const form = document.getElementById('ticketMessageForm');
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const content = (formData.get('content') || '').toString().trim();
+      if (!content) return;
+
+      const params = new URLSearchParams();
+      params.set('content', content);
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: params.toString()
+        });
+        if (res.ok) {
+          await res.json().catch(() => null);
+          form.reset();
+        } else {
+          console.error('Fehler beim Senden der Nachricht', res.status);
+        }
+      } catch (err) {
+        console.error('Fehler beim Senden der Nachricht', err);
+      }
+    });
+  }
+
+  socket.on('ticket:newMessage', (msg) => {
+    if (String(msg.ticket_id) !== String(ticketId)) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mb-3 ticket-message';
+    wrapper.innerHTML = `
+      <div class="small text-muted mb-1">
+        <strong>${msg.userName || 'Unbekannt'}</strong>
+        · ${new Date(msg.created_at).toLocaleString('de-DE')}
+      </div>
+      <div class="ticket-message-content" style="white-space:pre-wrap;">
+        ${msg.content}
+      </div>
+    `;
+    msgContainer.appendChild(wrapper);
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  });
+
+  socket.on('ticket:statusChange', (payload) => {
+    if (String(payload.ticket_id) !== String(ticketId)) return;
+    const badge = document.querySelector('h2.h4 + span span.badge');
+    if (!badge) return;
+    if (payload.status === 'open') {
+      badge.className = 'badge bg-warning text-dark';
+      badge.textContent = 'neu';
+    } else if (payload.status === 'in_progress') {
+      badge.className = 'badge bg-primary';
+      badge.textContent = 'in Bearbeitung';
+    } else if (payload.status === 'closed') {
+      badge.className = 'badge bg-secondary';
+      badge.textContent = 'geschlossen';
+    } else {
+      badge.className = 'badge bg-secondary';
+      badge.textContent = payload.status;
+    }
+  });
+
+</script>

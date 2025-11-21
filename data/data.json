@@ -1,0 +1,133 @@
+{
+  "users": [
+    {
+      "_id": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "name": "admin",
+      "email": "admin@example.com",
+      "password_hash": "$2a$12$9h6xDrsXgWyj.PoMG7LIH.q10B3DEYX6SSnG8ZYTBPx6HZJt0v15i",
+      "is_admin": true,
+      "created_at": "2025-11-21T08:29:28.001Z",
+      "updated_at": "2025-11-21T08:29:28.001Z"
+    }
+  ],
+  "categories": [
+    {
+      "_id": "875b1758-0e15-47ed-b8e4-8fe0857f104b",
+      "name": "Allgemein",
+      "slug": "allgemein",
+      "description": "Plauderecke für alles.",
+      "created_at": "2025-11-21T08:29:11.188Z",
+      "updated_at": "2025-11-21T08:33:17.276Z"
+    },
+    {
+      "_id": "b53e3d1f-a182-48bb-ad92-2860fedb944c",
+      "name": "Vorstellungen",
+      "slug": "vorstellungen",
+      "description": "Sag hallo 👋",
+      "created_at": "2025-11-21T08:29:11.193Z",
+      "updated_at": "2025-11-21T08:33:18.161Z"
+    },
+    {
+      "_id": "c059cec9-cc09-4438-8255-e15f686ef0be",
+      "name": "Hilfe & Support",
+      "slug": "hilfe-support",
+      "description": "Technische Fragen, Probleme, Bugs.",
+      "created_at": "2025-11-21T08:29:11.193Z",
+      "updated_at": "2025-11-21T08:33:17.775Z"
+    }
+  ],
+  "threads": [
+    {
+      "_id": "d619313f-1333-42e3-b02f-ee86b7ac0ca6",
+      "category": "875b1758-0e15-47ed-b8e4-8fe0857f104b",
+      "user": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "title": "Test",
+      "slug": "test",
+      "publicId": "d619313f",
+      "is_resolved": false,
+      "created_at": "2025-11-21T08:31:42.499Z",
+      "updated_at": "2025-11-21T08:31:42.499Z"
+    }
+  ],
+  "posts": [
+    {
+      "_id": "01449e9b-e500-48ed-9169-9f770ee1ad94",
+      "thread": "d619313f-1333-42e3-b02f-ee86b7ac0ca6",
+      "user": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "content": "Das ist ein Test Beitrag!",
+      "image_path": null,
+      "created_at": "2025-11-21T08:31:42.499Z",
+      "updated_at": "2025-11-21T08:31:42.499Z"
+    }
+  ],
+  "reports": [
+    {
+      "_id": "5bdf6fb1-7ebe-49cb-9bdf-6d874c3ffda2",
+      "postId": "01449e9b-e500-48ed-9169-9f770ee1ad94",
+      "reason": "Beleidigung / Hate Speech",
+      "reportedBy": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "status": "reviewed",
+      "created_at": "2025-11-21T08:31:55.342Z",
+      "reviewed_at": "2025-11-21T08:32:09.531Z",
+      "resolvedBy": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "resolution": "Baum",
+      "resolutionAction": "keep"
+    }
+  ],
+  "adminLogs": [
+    {
+      "_id": "81ca24b2-4cef-4871-b144-028ea8e20bff",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "category_created",
+      "targetType": "category",
+      "targetId": "b4d536ef-a008-4e55-a4a4-f0187cf5a116",
+      "note": "Test",
+      "created_at": "2025-11-21T08:30:49.749Z"
+    },
+    {
+      "_id": "726ca8fd-aed5-479f-a141-7f2d6b017dea",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "report_resolved_keep",
+      "targetType": "post",
+      "targetId": "01449e9b-e500-48ed-9169-9f770ee1ad94",
+      "note": "Baum",
+      "created_at": "2025-11-21T08:32:09.531Z"
+    },
+    {
+      "_id": "747f70f6-0ece-41fe-a604-defa08794102",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "category_deleted",
+      "targetType": "category",
+      "targetId": "b4d536ef-a008-4e55-a4a4-f0187cf5a116",
+      "note": "",
+      "created_at": "2025-11-21T08:32:56.046Z"
+    },
+    {
+      "_id": "37f5eeff-44f7-4563-bea0-e5b46c161927",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "category_updated",
+      "targetType": "category",
+      "targetId": "875b1758-0e15-47ed-b8e4-8fe0857f104b",
+      "note": "Allgemein",
+      "created_at": "2025-11-21T08:33:17.276Z"
+    },
+    {
+      "_id": "9a889acc-f76f-410d-8b5b-6fdfe28c7eb4",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "category_updated",
+      "targetType": "category",
+      "targetId": "c059cec9-cc09-4438-8255-e15f686ef0be",
+      "note": "Hilfe & Support",
+      "created_at": "2025-11-21T08:33:17.775Z"
+    },
+    {
+      "_id": "692958b0-db8c-478e-a2e6-d514cfa06885",
+      "adminId": "30dedd80-e28d-46ce-b55a-b8fd81ac6a47",
+      "action": "category_updated",
+      "targetType": "category",
+      "targetId": "b53e3d1f-a182-48bb-ad92-2860fedb944c",
+      "note": "Vorstellungen",
+      "created_at": "2025-11-21T08:33:18.161Z"
+    }
+  ]
+}
